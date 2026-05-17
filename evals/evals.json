@@ -1,0 +1,69 @@
+{
+  "skill_name": "build-educational-site",
+  "evals": [
+    {
+      "id": 0,
+      "name": "fapi-2.0-explainer",
+      "prompt": "I need to walk our security architecture review board through FAPI 2.0 next Tuesday — about half the room is execs who've never heard of it and half are practitioners who think FAPI 1 Advanced is still current. Build me an educational site (single HTML file) explaining FAPI 2.0: what it is, how it differs from FAPI 1.0 Advanced, where it sits in the OAuth/OIDC stack, and why a Tier 1 bank should care. Save it as fapi-2.0-explained.html in the current directory.",
+      "expected_output": "Single self-contained HTML file with TL;DR, audience switcher, Mermaid flow diagram, FAPI 1 vs 2 comparison table, regulatory callouts, glossary, citations.",
+      "files": [],
+      "assertions": [
+        {"id": "single_html_file", "text": "A single .html file named fapi-2.0-explained.html exists in the outputs directory"},
+        {"id": "self_contained", "text": "HTML inlines all CSS in a <style> block; no <link rel=stylesheet> to external CSS (Mermaid CDN is the only allowed external resource)"},
+        {"id": "has_tldr", "text": "Page contains an up-front TL;DR or executive summary section visible to all audiences"},
+        {"id": "has_audience_switcher", "text": "Page contains a working exec/practitioner audience switcher (buttons + practitioner-only class + JS toggle)"},
+        {"id": "embeds_mermaid", "text": "Page embeds at least one Mermaid diagram (class=\"mermaid\" or <pre class=\"mermaid\">)"},
+        {"id": "has_comparison_table", "text": "Page contains a <table> comparing FAPI 1.0 Advanced and FAPI 2.0"},
+        {"id": "has_glossary", "text": "Page contains a glossary section (Glossary heading or <dl> with key terms)"},
+        {"id": "has_citations", "text": "Page contains a Further Reading or References section with external links to primary sources (openid.net, FAPI working group, etc.)"},
+        {"id": "no_emoji", "text": "No emoji characters appear in rendered body text"},
+        {"id": "mentions_oauth_oidc", "text": "Page references OAuth 2.0 and/or OpenID Connect as the underlying stack"},
+        {"id": "mentions_sender_constraints", "text": "Page mentions DPoP or mTLS sender-constrained tokens (a defining FAPI 2.0 feature)"},
+        {"id": "regulatory_framing", "text": "Page contains at least one regulatory callout referencing Open Banking, MAS, APRA, PSD2/PSD3, or another applicable regime — explaining why a Tier 1 bank should care"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "pci-dss-4.0-scope-reduction",
+      "prompt": "Build me a one-pager (single self-contained HTML file) on PCI-DSS 4.0 scope reduction strategies. Audience is mixed — our CISO will read it, but so will the platform engineers actually implementing tokenization and segmentation. Cover: what counts as in-scope under 4.0, the main scope-reduction levers (tokenization, network segmentation, scoped CDE patterns), and what changed in v4.0 vs v3.2.1 around scope. Make sure to cite the actual requirement numbers. Save as pci-dss-4.0-scope-reduction.html.",
+      "expected_output": "Single self-contained HTML file with TL;DR, audience switcher, CDE-boundary Mermaid diagram, v3.2.1 vs v4.0 table, regulatory callouts citing specific PCI-DSS requirement numbers, glossary, citations.",
+      "files": [],
+      "assertions": [
+        {"id": "single_html_file", "text": "A single .html file named pci-dss-4.0-scope-reduction.html exists in the outputs directory"},
+        {"id": "self_contained", "text": "HTML inlines all CSS in a <style> block; no <link rel=stylesheet> to external CSS"},
+        {"id": "has_tldr", "text": "Page contains an up-front TL;DR or executive summary section"},
+        {"id": "has_audience_switcher", "text": "Page contains a working exec/practitioner audience switcher"},
+        {"id": "embeds_mermaid", "text": "Page embeds at least one Mermaid diagram"},
+        {"id": "has_comparison_table", "text": "Page contains a <table> comparing v3.2.1 and v4.0 on scope"},
+        {"id": "has_glossary", "text": "Page contains a glossary section defining CDE and tokenization at minimum"},
+        {"id": "has_citations", "text": "Page contains a Further Reading section linking to PCI SSC primary sources (pcisecuritystandards.org)"},
+        {"id": "no_emoji", "text": "No emoji characters in rendered body text"},
+        {"id": "cites_specific_requirements", "text": "Page contains at least three specific PCI-DSS requirement number references (e.g., 'Req 1.4', 'Requirement 3.5', '8.3.6')"},
+        {"id": "covers_tokenization_and_segmentation", "text": "Page covers both tokenization and network segmentation as scope-reduction levers"},
+        {"id": "mentions_cde", "text": "Page references the cardholder data environment (CDE) by name"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "spiffe-spire-workload-identity",
+      "prompt": "Create an educational site explaining SPIFFE and SPIRE for workload identity — single HTML file, professional enterprise styling. The reader is a platform engineer onboarding to our zero-trust east-west program, but their manager (a director, not super technical) will also read it. Cover: the SPIFFE identity model, what a SPIFFE ID looks like, what SPIRE does as a reference implementation, how SVIDs (x.509 and JWT) work, and how this fits into a service mesh + mTLS story. Show the identity provenance on the diagrams. Save as spiffe-spire-workload-identity.html.",
+      "expected_output": "Single self-contained HTML file with TL;DR, audience switcher, Mermaid mTLS-with-SPIFFE-ID diagram, x.509 vs JWT SVID table, code snippet showing SPIFFE ID format or SPIRE registration entry, glossary, citations.",
+      "files": [],
+      "assertions": [
+        {"id": "single_html_file", "text": "A single .html file named spiffe-spire-workload-identity.html exists in the outputs directory"},
+        {"id": "self_contained", "text": "HTML inlines all CSS in a <style> block; no <link rel=stylesheet> to external CSS"},
+        {"id": "has_tldr", "text": "Page contains an up-front TL;DR or executive summary section"},
+        {"id": "has_audience_switcher", "text": "Page contains a working exec/practitioner audience switcher"},
+        {"id": "embeds_mermaid", "text": "Page embeds at least one Mermaid diagram"},
+        {"id": "has_comparison_table", "text": "Page contains a <table> comparing x.509 SVID and JWT SVID"},
+        {"id": "has_glossary", "text": "Page contains a glossary section defining SPIFFE, SPIRE, SVID, and Workload API"},
+        {"id": "has_citations", "text": "Page contains a Further Reading section linking to spiffe.io or CNCF primary sources"},
+        {"id": "no_emoji", "text": "No emoji characters in rendered body text"},
+        {"id": "shows_spiffe_id_format", "text": "Page shows at least one example SPIFFE ID in spiffe://trust-domain/workload format (in code or prose)"},
+        {"id": "covers_both_svid_types", "text": "Page explains both x.509 SVID and JWT SVID"},
+        {"id": "has_code_or_config", "text": "Page contains at least one <pre><code> block (e.g., SPIRE registration entry, SPIFFE ID example, kubectl/spire-server snippet)"},
+        {"id": "identity_provenance_on_diagram", "text": "Mermaid diagram labels east-west calls with SPIFFE IDs or trust-domain identifiers"}
+      ]
+    }
+  ]
+}
