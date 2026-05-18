@@ -1,14 +1,16 @@
 ---
 name: build-educational-site
 description: >-
-  Build a single self-contained HTML explainer page on a technical or regulatory topic. ALWAYS trigger when the user wants a deliverable webpage that explains something — phrasings include "one-pager", "primer", "explainer", "teaching page", "deep-dive page", "self-contained webpage", "single HTML file on X", "page on Y to execs and engineers". Trigger even without "educational site" — "presenting Thursday on X, build me an HTML page", "deep-dive page on Y", "brief my team, make an html page on Z" all qualify. Strong on regulated/security topics (FAPI, PCI-DSS, DORA, SPIFFE, CALM, FIPS, SLSA, SBOM, AI Act, OAuth, zero-trust) but works for any technical concept. Skip ONLY for different artifacts (slide deck, Confluence, README, ADR, dashboard, multi-page docs site) or chat-only answers. Output is one .html file with inlined CSS/JS, Mermaid, comparison tables, exec/practitioner audience switcher, regulatory callouts, glossary.
+  Build a single self-contained HTML explainer page on a technical or regulatory topic. ALWAYS trigger when the user wants a deliverable webpage that explains something — phrasings include "one-pager", "primer", "explainer", "teaching page", "deep-dive page", "self-contained webpage", "single HTML file on X", "page on Y to execs and engineers". Trigger even without "educational site" — "presenting Thursday on X, build me an HTML page", "deep-dive page on Y", "brief my team, make an html page on Z" all qualify. Strong on regulated/security topics (FAPI, PCI-DSS, DORA, SPIFFE, CALM, FIPS, SLSA, SBOM, AI Act, OAuth, zero-trust) but works for any technical concept. Skip ONLY for different artifacts (slide deck, Confluence, README, ADR, dashboard, multi-page docs site) or chat-only answers. Output is one .html file with inlined CSS/JS, diagrams (Mermaid or hand-authored inline SVG), comparison tables, exec/practitioner audience switcher, regulatory callouts where the topic warrants them, and a glossary. Composes with the style-guide skill — when both apply, that skill provides the visual chassis and this one provides the content architecture.
 ---
 
 # build-educational-site
 
 ## What this produces
 
-One file: a self-contained `.html` document, no build step, no external dependencies except CDN-loaded Mermaid. Opens in any browser. Looks professional enough to share with a regulator, an executive sponsor, or a new joiner — same artifact, different reader.
+One file: a self-contained `.html` document, no build step. Opens in any browser. Looks professional enough to share with a regulator, an executive sponsor, or a new joiner — same artifact, different reader.
+
+External dependencies are minimised: Mermaid via CDN is the default when a page needs diagrams it would be painful to hand-author (sequence diagrams, C4 containers, large flowcharts), but **inline-SVG diagrams are a first-class alternative** and the right choice when the page needs to be strictly self-contained (corporate environments without CDN egress, archival use, true "send one file" portability). Choose per page, not per skill.
 
 The page is **single-topic and dense**. Not a course, not a multi-page site. One concept, layered so it works for three audiences in the same file:
 
@@ -27,6 +29,18 @@ Do **not** use this skill for:
 - Interactive tutorials with embedded sandboxes (different problem)
 - Internal architecture decision records (use ADR template)
 - Plain conversational explanations (just answer in chat)
+
+## Composition with the style-guide skill
+
+This skill is the **content architecture**: section sequence, the audience-switcher pattern, glossary discipline, the single-table comparison rule, the regulatory-callout shape. It does not own the visual chassis.
+
+When the `style-guide` skill is also in play (because the user named it or because they want the page to match the rest of their work), use this composition rule:
+
+- **Defer to style-guide on**: palette, typography, spacing scale, the dark-mode toggle, Lucide icon idiom, personal-branding row, screenshot harness, and the reusable components in `references/long-form-components.md` (callout, comparison table, definition-list glossary, reading list, audience switcher, practitioner-only reveal, inline-SVG diagram frame, TL;DR card).
+- **Keep from this skill**: the page structure below, the research workflow, the "lead with TL;DR" discipline, the dual-audience model, the glossary failure-modes, the comparison-table-as-single-table rule, and the regulatory-callout content shape (regime name + clause + citation).
+- The palette, typography, layout-width, and design-system blocks **lower down in this file are overridden** when style-guide is composing. They remain in this file as a self-contained fallback for when style-guide is not in play (e.g. a single deliverable for a stakeholder outside the user's normal context).
+
+If both skills apply but the user has not specified which, ask once. Default to composed-with-style-guide for any page the user is likely to share through their normal channels; default to standalone for one-off deliverables to external stakeholders who won't see other pages.
 
 ## Workflow
 
@@ -47,11 +61,14 @@ If any of the above is materially ambiguous, ask **one focused question** before
 
 Draft from model knowledge first; verify online only where staleness or precision matters. This balance is deliberate — full web-research-from-scratch is slow and often surfaces the same primary sources Claude already knows; pure model knowledge is fast but risks confidently asserting outdated version numbers, retired clause IDs, or superseded guidance.
 
-**Always verify online**, even if you think you know:
-- Specific clause numbers, control IDs, requirement numbers (e.g., "PCI-DSS 4.0 Req 8.3.6", "DORA Article 28")
+The verification rule below is **scoped to the kinds of claims that appear in the rendered page**. A page on a pure protocol / cryptography / architecture topic with no regulatory framing doesn't trigger the regulator-side checks; verifying clause IDs that never appear in the page is wasted effort.
+
+**When the page makes regulatory, specification, or quantitative claims, verify online** — even if you think you know:
+- Specific clause numbers, control IDs, requirement numbers (e.g., "PCI-DSS 4.0 Req 8.3.6", "DORA Article 28") — verify the number and that the clause still exists in the current revision
 - Version numbers and effective dates of standards and regulations
 - Names of current working groups, maintainers, or governing bodies
 - URLs for primary sources (specs, regulator sites, FINOS pages)
+- Quantitative claims load-bearing to the page's argument (qubit counts, supply distributions, performance figures)
 
 **Trust model knowledge for**:
 - Conceptual explanations, analogies, mental models
@@ -59,7 +76,7 @@ Draft from model knowledge first; verify online only where staleness or precisio
 - Architecture patterns and trade-offs
 - Historical context
 
-Cite every regulatory or specification claim. Citations go in the "Further reading" section as links to the primary source — not blog posts, not Wikipedia, not vendor marketing.
+Cite every regulatory or specification claim that does appear. Citations go in the "Further reading" section as links to the primary source — not blog posts, not Wikipedia, not vendor marketing.
 
 ### Phase 3 — Outline before HTML
 
@@ -82,13 +99,15 @@ Name the file using kebab-case based on the topic: `fapi-2.0-explained.html`, `p
 After writing the file, verify it renders correctly. Use the Playwright screenshot script if one exists in the repo (the user's standard pattern — see their CLAUDE.md). If no screenshot script is present, open the file in a headless browser via Playwright or note to the user that visual validation was skipped.
 
 Check:
-- Mermaid diagrams actually render (no "Syntax error in text" boxes)
-- Audience switcher toggles content correctly
+- Diagrams actually render (no "Syntax error in text" boxes from Mermaid, no broken paths in inline SVG)
+- Audience switcher toggles content correctly and is keyboard-navigable (arrow keys between segments)
 - Glossary terms have working hover/expand affordances
 - No console errors
 - Page is responsive (collapses gracefully on mobile width)
 
 If validation fails, fix and re-screenshot. Do not claim the artifact is ready until it renders cleanly.
+
+**When `npx playwright install chromium` fails** (e.g. Ubuntu 26.04 ARM64, snap-only distros without sudo, restricted corporate hosts): see the same fallback sequence documented in style-guide's "Screenshot iteration loop → When `npx playwright install chromium` fails" section. Briefly: try a system chromium (`sudo apt install chromium-browser` or `sudo snap install chromium`), or CDP-connect to a manually-launched Chrome with `--remote-debugging-port`, or hand off the install command to the user. Don't silently skip visual validation; note explicitly which checks were run and which were blocked.
 
 ## Page template
 
@@ -112,9 +131,10 @@ Use this section structure. Order matters — the reader's eye should flow from 
   - Visible to all audiences
 
 <Architecture or flow diagram>
-  - Mermaid block: C4 context/container, sequence, or flowchart depending on topic
+  - Either a Mermaid block (C4 context/container, sequence, flowchart) OR a hand-authored inline SVG, depending on the page's portability needs and diagram shape
   - Caption underneath naming the diagram type and what it shows
   - For security/identity topics: label trust boundaries with the regulatory regime, mark PDP/PEP, show identity provenance (SPIFFE ID, OIDC sub, mTLS subject)
+  - See "Diagrams: Mermaid vs. inline SVG" below for the picking rule
 
 <Mechanics / deep dive>
   - This is where practitioner-only content lives
@@ -190,12 +210,14 @@ Do not introduce additional colors. If you need to distinguish more than two cal
 
 ### Audience switcher
 
-A simple two-button control in the header that toggles a body class. Practitioner-depth content is hidden by default (exec view) and revealed when the practitioner button is pressed. Save the user's choice to `localStorage` so it persists across refresh.
+A segmented two-option control in the header that toggles a body class. Practitioner-depth content is hidden by default (exec view) and revealed when the practitioner option is selected. Save the user's choice to `localStorage` so it persists across refresh.
+
+Use the ARIA `radiogroup` pattern rather than two unrelated buttons — it gives keyboard users arrow-key navigation between segments and is correctly announced by screen readers. (When composing with `style-guide`, this same component lives in `references/long-form-components.md` against the style-guide palette and is the version to copy.)
 
 ```html
-<div class="audience-switch" role="group" aria-label="Audience">
-  <button data-audience="exec" aria-pressed="true">Executive view</button>
-  <button data-audience="practitioner" aria-pressed="false">Practitioner view</button>
+<div class="audience-switch" role="radiogroup" aria-label="Audience">
+  <button type="button" role="radio" data-audience="exec" aria-checked="true" tabindex="0">Executive view</button>
+  <button type="button" role="radio" data-audience="practitioner" aria-checked="false" tabindex="-1">Practitioner view</button>
 </div>
 ```
 
@@ -204,19 +226,45 @@ body:not(.show-practitioner) .practitioner-only { display: none; }
 ```
 
 ```js
-const buttons = document.querySelectorAll('.audience-switch button');
+const switchEl = document.querySelector('.audience-switch[role="radiogroup"]');
+const radios = Array.from(switchEl.querySelectorAll('[role="radio"]'));
 const apply = (mode) => {
   document.body.classList.toggle('show-practitioner', mode === 'practitioner');
-  buttons.forEach(b => b.setAttribute('aria-pressed', b.dataset.audience === mode));
+  radios.forEach((r) => {
+    const isOn = r.dataset.audience === mode;
+    r.setAttribute('aria-checked', isOn ? 'true' : 'false');
+    r.setAttribute('tabindex', isOn ? '0' : '-1');
+  });
   localStorage.setItem('audience', mode);
 };
-buttons.forEach(b => b.addEventListener('click', () => apply(b.dataset.audience)));
+radios.forEach((r) => {
+  r.addEventListener('click', () => apply(r.dataset.audience));
+  r.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const idx = radios.indexOf(r);
+    const next = radios[(idx + (e.key === 'ArrowRight' ? 1 : radios.length - 1)) % radios.length];
+    next.focus();
+    apply(next.dataset.audience);
+  });
+});
 apply(localStorage.getItem('audience') || 'exec');
 ```
 
-### Mermaid
+If the page genuinely has no practitioner-only blocks, don't ship the switcher at all — a control that does nothing is a failure mode (see "Failure modes to avoid" below).
 
-Load from CDN and initialize with a theme matched to the palette:
+### Diagrams: Mermaid vs. inline SVG
+
+Both are valid. Pick per page, not per skill, with this rule:
+
+- **Mermaid via CDN** is the default when the diagram is one of Mermaid's strong shapes — sequence diagrams, C4 contexts/containers, decision flowcharts, state machines, gantt charts — and the page's portability requirements allow a CDN dependency.
+- **Hand-authored inline SVG** is the right choice when (a) the page must be strictly self-contained with zero external dependencies (regulated environments without CDN egress, archival use, attachment-on-email portability), (b) the diagram shape isn't well served by Mermaid's grammars (lifecycle timelines, address-type comparison strips, custom 2-axis charts, scaled supply distributions), or (c) you need the diagram to respect the page's theme variables natively. Inline SVG can read `currentColor` and `var(--accent)` directly, which makes light/dark switching free.
+
+Wrap either form in a `<figure>` with a `<figcaption>` underneath naming the diagram type and what it shows.
+
+#### Mermaid setup
+
+Load from CDN and initialise with a theme matched to the page palette. The colour values below are for the standalone palette in this file; when composing with style-guide, replace them with that skill's CSS variable values so Mermaid tracks the active theme.
 
 ```html
 <script type="module">
@@ -235,7 +283,23 @@ Load from CDN and initialize with a theme matched to the palette:
 </script>
 ```
 
-Wrap diagrams in `<figure>` with a `<figcaption>` underneath naming the diagram type.
+#### Inline-SVG diagram frame
+
+Use a `<figure>` wrapper, a viewBox for responsive scaling, and theme-tracking fills:
+
+```html
+<figure class="diagram-frame" aria-labelledby="diagram-caption">
+  <svg viewBox="0 0 720 200" role="img" xmlns="http://www.w3.org/2000/svg" aria-labelledby="diagram-caption">
+    <rect x="40" y="40" width="200" height="60" rx="6" fill="var(--accent)" opacity="0.85"/>
+    <text x="140" y="76" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="700">Emphasis</text>
+    <rect x="280" y="40" width="200" height="60" rx="6" fill="currentColor" opacity="0.10"/>
+    <text x="380" y="76" font-size="14" fill="currentColor" text-anchor="middle">Neutral</text>
+  </svg>
+  <figcaption id="diagram-caption">Caption naming the diagram type and what it shows.</figcaption>
+</figure>
+```
+
+`currentColor` and `var(--accent)` mean the SVG re-paints automatically when the user toggles dark mode — no separate dark-theme variant needed.
 
 ### Regulatory callouts
 
@@ -265,17 +329,17 @@ Two acceptable patterns — pick one per page, don't mix:
 After producing the file, do a self-check before declaring done:
 
 - [ ] File opens cleanly in a browser (no console errors)
-- [ ] All Mermaid diagrams render (not as text/error boxes)
-- [ ] Audience switcher actually hides/shows practitioner content
-- [ ] At least one regulatory callout exists if the topic warrants it
-- [ ] Every regulatory clause/article/version number was verified online and is cited
+- [ ] All diagrams render — Mermaid blocks produce diagrams, not "Syntax error in text" boxes; inline SVGs paint with no broken paths
+- [ ] Audience switcher actually hides/shows practitioner content AND is keyboard-navigable with arrow keys between segments
+- [ ] If the topic involves regulatory framing, at least one regulatory callout exists; if it doesn't, no callout is shipped just for show
+- [ ] Every regulatory clause/article/version number that appears in the rendered text was verified online and is cited
 - [ ] Glossary covers every acronym AND every multi-word term of art used heavily in the page (tokenization, trust domain, sender-constrained token, etc.) — not only capitalized abbreviations
 - [ ] If the topic involves comparing two named variants, that comparison lives in a single <table> with side-by-side columns (not split across prose sections)
-- [ ] Page is one file — no missing external CSS or JS references except Mermaid CDN
+- [ ] Page is one file — no missing external CSS or JS references; if Mermaid is in use, that is the only external dependency, otherwise the page is fully self-contained
 - [ ] No emoji anywhere in the rendered text
 - [ ] Page renders sensibly down to ~600px viewport width
 
-If a Playwright screenshot script exists in the repo, run it and capture desktop + mobile screenshots. Report screenshot paths to the user along with the HTML file path.
+If a Playwright screenshot script exists in the repo, run it and capture desktop + mobile screenshots. Report screenshot paths to the user along with the HTML file path. If the harness fails to install (see Phase 5 fallback), report which checks were run statically and which were blocked — do not declare visual validation passed when it wasn't run.
 
 ## Failure modes to avoid
 
