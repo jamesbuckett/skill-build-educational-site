@@ -33,7 +33,35 @@ const outPrefix = resolve(outArg);
 mkdirSync(dirname(outPrefix), { recursive: true });
 
 const url = pathToFileURL(inputPath).href;
-const browser = await chromium.launch();
+
+// Resolve a Chromium binary. Try bundled first, then known system paths.
+// Set PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH to override.
+const fallbackPaths = [
+  process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
+  "/snap/bin/chromium",
+  "/usr/bin/chromium-browser",
+  "/usr/bin/chromium",
+].filter(Boolean);
+let browser;
+try {
+  browser = await chromium.launch();
+  console.log("Browser: bundled Chromium");
+} catch {
+  let launched = false;
+  for (const executablePath of fallbackPaths) {
+    try {
+      browser = await chromium.launch({ executablePath });
+      console.log(`Browser: ${executablePath}`);
+      launched = true;
+      break;
+    } catch {}
+  }
+  if (!launched) {
+    throw new Error(
+      "No Chromium found. Install via `sudo snap install chromium` or set PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH.",
+    );
+  }
+}
 
 // Desktop
 {
