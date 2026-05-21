@@ -1,10 +1,10 @@
 ---
-name: build-educational-site
+name: skill-build-educational-site
 description: >-
-  Build a single self-contained HTML explainer page on a technical or regulatory topic. ALWAYS trigger when the user wants a deliverable webpage that explains something — phrasings include "one-pager", "primer", "explainer", "teaching page", "deep-dive page", "self-contained webpage", "single HTML file on X", "page on Y to execs and engineers". Trigger even without "educational site" — "presenting Thursday on X, build me an HTML page", "deep-dive page on Y", "brief my team, make an html page on Z" all qualify. Strong on regulated/security topics (FAPI, PCI-DSS, DORA, SPIFFE, CALM, FIPS, SLSA, SBOM, AI Act, OAuth, zero-trust) but works for any technical concept. Skip ONLY for different artifacts (slide deck, Confluence, README, ADR, dashboard, multi-page docs site) or chat-only answers. Output is one .html file with inlined CSS/JS, diagrams (Mermaid or hand-authored inline SVG), comparison tables, exec/practitioner audience switcher, regulatory callouts where the topic warrants them, and a glossary. Composes with the style-guide skill — when both apply, that skill provides the visual chassis and this one provides the content architecture.
+  Build a single self-contained HTML explainer page on a technical or regulatory topic. ALWAYS trigger when the user wants a deliverable webpage that explains something — phrasings include "one-pager", "primer", "explainer", "teaching page", "deep-dive page", "self-contained webpage", "single HTML file on X", "page on Y to execs and engineers". Trigger even without "educational site" — "presenting Thursday on X, build me an HTML page", "deep-dive page on Y", "brief my team, make an html page on Z" all qualify. Strong on regulated/security topics (FAPI, PCI-DSS, DORA, SPIFFE, CALM, FIPS, SLSA, SBOM, AI Act, OAuth, zero-trust) but works for any technical concept. Skip ONLY for different artifacts (slide deck, Confluence, README, ADR, dashboard, multi-page docs site) or chat-only answers. Output is one .html file with inlined CSS/JS, diagrams (Mermaid or hand-authored inline SVG), comparison tables, exec/practitioner audience switcher, regulatory callouts where the topic warrants them, and a glossary. Composes with the skill-style-guide skill — when both apply, that skill provides the visual chassis and this one provides the content architecture.
 ---
 
-# build-educational-site
+# skill-build-educational-site
 
 ## What this produces
 
@@ -30,17 +30,17 @@ Do **not** use this skill for:
 - Internal architecture decision records (use ADR template)
 - Plain conversational explanations (just answer in chat)
 
-## Composition with the style-guide skill
+## Composition with the skill-style-guide skill
 
 This skill is the **content architecture**: section sequence, the audience-switcher pattern, glossary discipline, the single-table comparison rule, the regulatory-callout shape. It does not own the visual chassis.
 
-When the `style-guide` skill is also in play (because the user named it or because they want the page to match the rest of their work), use this composition rule:
+When the `skill-style-guide` skill is also in play (because the user named it or because they want the page to match the rest of their work), use this composition rule:
 
-- **Defer to style-guide on**: palette, typography, spacing scale, the dark-mode toggle, Lucide icon idiom, personal-branding row, screenshot harness, and the reusable components in `references/long-form-components.md` (callout, comparison table, definition-list glossary, reading list, audience switcher, practitioner-only reveal, inline-SVG diagram frame, TL;DR card).
+- **Defer to skill-style-guide on**: palette, typography, spacing scale, the dark-mode toggle, Lucide icon idiom, personal-branding row, screenshot harness, and the reusable components in `references/long-form-components.md` (callout, comparison table, definition-list glossary, reading list, audience switcher, practitioner-only reveal, inline-SVG diagram frame, TL;DR card).
 - **Keep from this skill**: the page structure below, the research workflow, the "lead with TL;DR" discipline, the dual-audience model, the glossary failure-modes, the comparison-table-as-single-table rule, and the regulatory-callout content shape (regime name + clause + citation).
-- The palette, typography, layout-width, and design-system blocks **lower down in this file are overridden** when style-guide is composing. They remain in this file as a self-contained fallback for when style-guide is not in play (e.g. a single deliverable for a stakeholder outside the user's normal context).
+- The palette, typography, layout-width, and design-system blocks **lower down in this file are overridden** when skill-style-guide is composing. They remain in this file as a self-contained fallback for when skill-style-guide is not in play (e.g. a single deliverable for a stakeholder outside the user's normal context).
 
-If both skills apply but the user has not specified which, ask once. Default to composed-with-style-guide for any page the user is likely to share through their normal channels; default to standalone for one-off deliverables to external stakeholders who won't see other pages.
+If both skills apply but the user has not specified which, ask once. Default to composed-with-skill-style-guide for any page the user is likely to share through their normal channels; default to standalone for one-off deliverables to external stakeholders who won't see other pages.
 
 ## Workflow
 
@@ -107,7 +107,7 @@ Check:
 
 If validation fails, fix and re-screenshot. Do not claim the artifact is ready until it renders cleanly.
 
-**When `npx playwright install chromium` fails** (e.g. Ubuntu 26.04 ARM64, snap-only distros without sudo, restricted corporate hosts): see the same fallback sequence documented in style-guide's "Screenshot iteration loop → When `npx playwright install chromium` fails" section. Briefly: try a system chromium (`sudo apt install chromium-browser` or `sudo snap install chromium`), or CDP-connect to a manually-launched Chrome with `--remote-debugging-port`, or hand off the install command to the user. Don't silently skip visual validation; note explicitly which checks were run and which were blocked.
+**When `npx playwright install chromium` fails** (e.g. Ubuntu 26.04 ARM64, snap-only distros without sudo, restricted corporate hosts): see the same fallback sequence documented in skill-style-guide's "Screenshot iteration loop → When `npx playwright install chromium` fails" section. Briefly: try a system chromium (`sudo apt install chromium-browser` or `sudo snap install chromium`), or CDP-connect to a manually-launched Chrome with `--remote-debugging-port`, or hand off the install command to the user. Don't silently skip visual validation; note explicitly which checks were run and which were blocked.
 
 ## Page template
 
@@ -212,7 +212,7 @@ Do not introduce additional colors. If you need to distinguish more than two cal
 
 A segmented two-option control in the header that toggles a body class. Practitioner-depth content is hidden by default (exec view) and revealed when the practitioner option is selected. Save the user's choice to `localStorage` so it persists across refresh.
 
-Use the ARIA `radiogroup` pattern rather than two unrelated buttons — it gives keyboard users arrow-key navigation between segments and is correctly announced by screen readers. (When composing with `style-guide`, this same component lives in `references/long-form-components.md` against the style-guide palette and is the version to copy.)
+Use the ARIA `radiogroup` pattern rather than two unrelated buttons — it gives keyboard users arrow-key navigation between segments and is correctly announced by screen readers. (When composing with `skill-style-guide`, this same component lives in `references/long-form-components.md` against the skill-style-guide palette and is the version to copy.)
 
 ```html
 <div class="audience-switch" role="radiogroup" aria-label="Audience">
@@ -264,7 +264,7 @@ Wrap either form in a `<figure>` with a `<figcaption>` underneath naming the dia
 
 #### Mermaid setup
 
-Load from CDN and initialise with a theme matched to the page palette. The colour values below are for the standalone palette in this file; when composing with style-guide, replace them with that skill's CSS variable values so Mermaid tracks the active theme.
+Load from CDN and initialise with a theme matched to the page palette. The colour values below are for the standalone palette in this file; when composing with skill-style-guide, replace them with that skill's CSS variable values so Mermaid tracks the active theme.
 
 ```html
 <script type="module">
