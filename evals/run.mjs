@@ -6,6 +6,8 @@
 //   node evals/run.mjs --generate      # generate fresh outputs via `claude --print`, then check
 //   node evals/run.mjs --case <name>   # run a single case (matches --generate too)
 //   node evals/run.mjs --keep-failing  # don't clear outputs/<case>/ before generating
+//   node evals/run.mjs --timeout <min> # per-case timeout in minutes (default 30)
+//   node evals/run.mjs --verbose       # stream child output (uses --output-format stream-json)
 //
 // Outputs go to evals/outputs/<case-name>/<expected>.html.
 // Generation is opt-in because each case is a real model call (slow + costly).
@@ -33,6 +35,9 @@ const arg = (name) => {
 const generate = flag("--generate");
 const caseFilter = arg("--case");
 const keepFailing = flag("--keep-failing");
+const verbose = flag("--verbose");
+const timeoutMin = Number(arg("--timeout") || "30");
+const timeoutMs = Math.max(1, timeoutMin) * 60_000;
 
 // --- Load evals ----------------------------------------------------------
 const evalSpec = JSON.parse(readFileSync(evalsFile, "utf8"));
@@ -61,15 +66,21 @@ for (const c of cases) {
   if (generate) {
     if (!keepFailing && existsSync(outDir)) rmSync(outDir, { recursive: true, force: true });
     mkdirSync(outDir, { recursive: true });
-    console.log(`\n[${c.name}] generating via claude --print …`);
+    console.log(`\n[${c.name}] generating via claude --print (timeout ${timeoutMin}m) …`);
     const t0 = Date.now();
-    const r = spawnSync(
-      "claude",
-      ["--print", "--dangerously-skip-permissions", "--add-dir", outDir, c.prompt],
-      { cwd: outDir, stdio: "inherit", timeout: 600_000 },
-    );
+    const baseArgs = ["--print", "--dangerously-skip-permissions", "--add-dir", outDir];
+    const args = verbose
+      ? [...baseArgs, "--output-format", "stream-json", "--verbose", c.prompt]
+      : [...baseArgs, c.prompt];
+    const r = spawnSync("claude", args, {
+      cwd: outDir,
+      stdio: "inherit",
+      timeout: timeoutMs,
+    });
     const dt = ((Date.now() - t0) / 1000).toFixed(1);
-    if (r.status !== 0) {
+    if (r.signal) {
+      console.error(`[${c.name}] killed by ${r.signal} after ${dt}s (likely hit --timeout ${timeoutMin}m)`);
+    } else if (r.status !== 0) {
       console.error(`[${c.name}] claude exited with status ${r.status} after ${dt}s`);
     } else {
       console.log(`[${c.name}] generated in ${dt}s`);
