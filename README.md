@@ -1,170 +1,112 @@
-# build-educational-site
+# Build Educational Site
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Type: Claude Skill](https://img.shields.io/badge/type-Claude%20Skill-orange.svg)](SKILL.md)
-[![Model: Claude Opus 4.7](https://img.shields.io/badge/model-Claude%20Opus%204.7-8A2BE2.svg)](https://www.anthropic.com)
-[![Eval pass rate: 100%](https://img.shields.io/badge/eval%20pass%20rate-100%25-brightgreen.svg)](#how-it-scores)
-[![vs. baseline: +27pp](https://img.shields.io/badge/vs%20baseline-%2B27pp-brightgreen.svg)](#how-it-scores)
-[![Output: single HTML file](https://img.shields.io/badge/output-single%20HTML%20file-1B4F8C.svg)](#what-it-produces)
+[![GitHub stars](https://img.shields.io/github/stars/jamesbuckett/skill-build-educational-site?style=flat-square)](https://github.com/jamesbuckett/skill-build-educational-site/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/jamesbuckett/skill-build-educational-site?style=flat-square)](https://github.com/jamesbuckett/skill-build-educational-site/commits/main)
+[![Issues](https://img.shields.io/github/issues/jamesbuckett/skill-build-educational-site?style=flat-square)](https://github.com/jamesbuckett/skill-build-educational-site/issues)
+[![Eval pass rate: 100%](https://img.shields.io/badge/eval%20pass%20rate-100%25-brightgreen.svg)](evals/evals.json)
 
-**TL;DR** — A Claude Code skill that turns a topic name into a single self-contained HTML explainer page: TL;DR, exec/practitioner audience switcher, Mermaid diagrams, comparison tables, regulatory callouts, glossary, and verified primary-source citations. Built for technical/regulatory topics that need to be readable by execs and engineers in the same artifact.
+Turns a topic name into a single self-contained `.html` explainer page. Built for technical and regulatory subjects — FAPI 2.0, PCI-DSS scope reduction, SPIFFE/SPIRE, DORA, OAuth, zero-trust — that need to read as well to an exec sponsor as they do to a platform engineer. Output is one file with inlined CSS/JS, an exec/practitioner audience switcher, Mermaid diagrams, comparison tables, glossary, and verified primary-source citations. Scores 37/37 across three regulatory-topic evals; the same agent with no skill loaded scores 27/37 (+27pp).
 
-## What it produces
+## Installation
 
-```mermaid
-flowchart TD
-    A["User asks:<br/>'build me a one-pager on X'"] --> B[Phase 1: Scope]
-    B --> C[Phase 2: Hybrid research<br/>model knowledge + web-verify<br/>regulatory clauses]
-    C --> D[Phase 3: Outline]
-    D --> E[Phase 4: Build single HTML]
-    E --> F[Phase 5: Visual validation]
+### Prerequisites
 
-    E --> G["<b>One .html file</b><br/>inlined CSS/JS"]
+- [Claude Code](https://claude.com/claude-code) installed and authenticated
+- `git` (any recent version)
+- *Optional, for screenshot validation:* Node.js 18+ and Playwright
 
-    G --> H[Header + audience switcher]
-    G --> I[TL;DR + bullets]
-    G --> J[Mermaid diagram]
-    G --> K[Practitioner-only blocks]
-    G --> L[Comparison table]
-    G --> M[Regulatory callouts]
-    G --> N[Glossary]
-    G --> O[Further reading<br/>verified citations]
+### Install the skill
 
-    style G fill:#E8F0FA,stroke:#1B4F8C,stroke-width:2px
-    style A fill:#FFFFFF,stroke:#4A5A6B
-```
-
-One file, no build step, no external dependencies except Mermaid via CDN. Opens in any browser. Looks professional enough to share with a regulator, an executive sponsor, or a new joiner — same artifact, different reader.
-
-A runtime audience switcher in the header toggles visibility of practitioner-depth blocks, so the same file serves exec and engineering readers without forcing anyone to scroll past content that isn't for them.
-
-## How it scores
-
-Measured across three evals (FAPI 2.0, PCI-DSS 4.0 scope reduction, SPIFFE/SPIRE workload identity), with 12–13 structural and content assertions per eval. Baseline = same agent, same prompt, **no skill loaded**.
-
-| Eval | With skill | Baseline (no skill) | Delta |
-|---|---|---|---|
-| FAPI 2.0 | 12/12 | 9/12 | +3 |
-| PCI-DSS 4.0 scope reduction | 12/12 | 9/12 | +3 |
-| SPIFFE/SPIRE workload identity | 13/13 | 9/13 | +4 |
-| **Total** | **37/37 (100%)** | **27/37 (73%)** | **+27pp** |
-
-Time and token cost vs baseline:
-
-| Metric | With skill | Baseline | Delta |
-|---|---|---|---|
-| Time per page | 274s ± 22s | 248s ± 50s | +10% |
-| Tokens per page | 50.5k ± 2.6k | 34.1k ± 5.3k | +48% |
-
-The 48% token premium pays for the web-verification step — verified clause numbers, working-group governance, current spec versions. Worth it for regulated content; could be gated for purely conceptual topics.
-
-**Where the skill consistently beats baseline** (failures unique to the no-skill runs):
-
-- Audience switcher — baseline never produces one
-- Further Reading / References section with primary-source links — baseline skipped all three
-- Mermaid diagrams — baseline often uses inline SVG instead
-- SPIFFE-ID-labeled identity provenance on diagrams
-- Side-by-side comparison tables instead of split prose sections
-
-**What the baseline still gets right** (largely thanks to a strong global CLAUDE.md):
-
-- TL;DR at the top
-- No emoji in technical output
-- Section structure and visual quality
-
-## Usage
-
-Trigger phrases (any of these will activate the skill):
-
-- "build me a one-pager on `<topic>`"
-- "I need a primer / explainer / teaching page on `<topic>`"
-- "create a self-contained webpage explaining `<topic>` for `<audience>`"
-- "I'm presenting to my team Thursday on `<topic>`, build me an HTML page"
-
-Output is saved to the current working directory using kebab-case naming (e.g., `fapi-2.0-explained.html`, `pci-dss-4.0-scope-reduction.html`).
-
-## Install
-
-The skill is a single `SKILL.md` file. Two installation options:
-
-**As a `.skill` package**:
+Clone directly into the Claude Code skills directory:
 
 ```bash
-# Stage a clean copy (avoids bundling .git/), package, and install
-mkdir -p /tmp/build-educational-site
-cp SKILL.md /tmp/build-educational-site/
-python -m scripts.package_skill /tmp/build-educational-site ~/.claude/skills/
+git clone https://github.com/jamesbuckett/skill-build-educational-site.git \
+  ~/.claude/skills/skill-build-educational-site
 ```
 
-**As a plain directory** (recommended for editing):
+The next Claude Code session will auto-discover it.
+
+For active development, clone elsewhere and symlink — edits in your working copy propagate immediately:
 
 ```bash
-mkdir -p ~/.claude/skills/build-educational-site
-cp SKILL.md ~/.claude/skills/build-educational-site/
+git clone https://github.com/jamesbuckett/skill-build-educational-site.git \
+  ~/projects/skill-build-educational-site
+ln -s ~/projects/skill-build-educational-site \
+  ~/.claude/skills/skill-build-educational-site
 ```
 
-Either path makes the skill available the next time Claude Code loads skills.
+### Verify it loaded
 
-## Page template
+Open Claude Code in any project directory and try a trigger phrase, for example:
 
-The skill enforces a consistent section order across every page it builds:
+> Build me a one-pager on OAuth 2.0 PKCE.
 
-| # | Section | Audience | Notes |
-|---|---|---|---|
-| 1 | Header + audience switcher | All | Title, subtitle, exec/practitioner toggle |
-| 2 | TL;DR | All | Bold lead sentence + 3–5 bullet takeaways |
-| 3 | Conceptual overview | All | Plain-language framing, "why does this exist" |
-| 4 | Architecture / flow diagram | All | Mermaid; trust boundaries labeled with regulatory regime |
-| 5 | Mechanics / deep-dive | Practitioner-only blocks | Wire-level detail, code/config snippets |
-| 6 | Comparison or trade-off table | All | Side-by-side `<table>`, ≤8 rows |
-| 7 | Regulatory callouts | All | One per applicable regime, cited |
-| 8 | Glossary | All | Acronyms + multi-word terms of art |
-| 9 | Further reading | All | Primary sources only, each annotated |
+If the skill is loaded, Claude will announce that it's using `build-educational-site` and produce an `.html` file in the current directory. If nothing happens, restart the session — skills are discovered at session start.
 
-## Design system
+### (Optional) Install the screenshot validator
 
-JPMC-ready professional aesthetic. Conservative palette, generous whitespace, strong typographic hierarchy. **No emoji anywhere in the rendered output.**
-
-```
---ink:         #0B1F33    /* primary text — deep navy */
---ink-muted:   #4A5A6B    /* secondary text */
---paper:       #FAFBFC    /* page background */
---accent:      #1B4F8C    /* links, primary brand — corporate blue */
---accent-soft: #E8F0FA    /* tinted callout background */
---warn:        #8B4513    /* regulatory callout accent — saddle brown */
-```
-
-Body type: `system-ui, -apple-system, "Segoe UI", Roboto` at 16px / 1.65. Content column capped at 860px.
-
-## Visual validation
-
-The repo includes `screenshot.mjs` for capturing desktop + mobile shots of any generated page using Playwright. Run on a supported architecture (x86_64 Linux, macOS, Windows; arm64 Ubuntu 26.04 is currently unsupported by Playwright):
+The repo ships `screenshot.mjs`, a Playwright script that captures desktop + mobile screenshots of any page the skill produces. From a clone of the repo:
 
 ```bash
 npm install --save-dev playwright
 npx playwright install chromium
-node screenshot.mjs path/to/output.html docs/hero
 ```
 
-Produces `docs/hero.desktop.png` (1440×900 @ 2x) and `docs/hero.mobile.png` (390×844 @ 2x).
+Then run against any output:
 
-## Repository structure
+```bash
+node screenshot.mjs your-page.html docs/your-page
+```
+
+Produces `docs/your-page.desktop.png` (1440×900 @ 2x) and `docs/your-page.mobile.png` (390×844 @ 2x).
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| Skill doesn't trigger | Restart the Claude Code session; skills load at session start. Confirm `~/.claude/skills/skill-build-educational-site/SKILL.md` exists (not nested another level deep). |
+| `npx playwright install chromium` fails on ARM64 Ubuntu | Install a system Chromium: `sudo apt install chromium-browser` (or `sudo snap install chromium`). `screenshot.mjs` finds it via a built-in fallback chain. |
+| Mermaid diagrams show "Syntax error in text" | Open the generated `.html` directly in a browser; the Mermaid CDN may have been blocked on first load. A refresh usually clears it. |
+| Want to author offline (no CDN egress) | Ask the skill explicitly for "inline SVG diagrams only" — it treats that as a first-class alternative for air-gapped or archival use. |
+
+### Update
+
+```bash
+cd ~/.claude/skills/skill-build-educational-site && git pull
+```
+
+### Uninstall
+
+```bash
+rm -rf ~/.claude/skills/skill-build-educational-site
+```
+
+## Usage
+
+Trigger phrases (any of these activate the skill):
+
+- "build me a one-pager on `<topic>`"
+- "I need a primer / explainer / teaching page on `<topic>`"
+- "create a self-contained webpage explaining `<topic>` for `<audience>`"
+- "I'm presenting Thursday on `<topic>` — build me an HTML page"
+
+Output is saved to the current working directory using kebab-case names (e.g., `fapi-2.0-explained.html`). The skill composes with a `style-guide` skill when both are installed — `style-guide` provides the visual chassis (typography, dark mode, spacing scale); `build-educational-site` provides the content architecture (sections, audience switcher, regulatory callouts, glossary).
+
+For the full page template, design system, and failure modes the skill guards against, read [`SKILL.md`](SKILL.md).
+
+## Project Structure
 
 ```
-build-educational-site/
-├── SKILL.md         — the skill itself (frontmatter + workflow + template)
+skill-build-educational-site/
+├── SKILL.md         — the skill itself (frontmatter + workflow + page template)
 ├── evals/
-│   └── evals.json   — 3 test cases with 37 assertions
+│   └── evals.json   — 3 test cases, 37 assertions
 ├── screenshot.mjs   — Playwright visual-validation script
-├── LICENSE          — MIT
+├── LICENSE
 └── README.md
 ```
 
-## Caveats
-
-- The skill's `description` field has been tuned manually for triggering breadth. The automated description-optimization loop (`run_loop.py`) needs to run from a regular terminal, not from inside a Claude Code session — `claude -p` subprocess auth fails when nested.
-- Visual validation via Playwright requires a supported architecture. The skill notes this and skips rather than failing if the binaries aren't available.
-
 ## License
 
-[MIT](LICENSE). Use it, fork it, modify it — just keep the attribution.
+[MIT](LICENSE) © 2026 James Buckett
