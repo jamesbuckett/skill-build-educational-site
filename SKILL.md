@@ -42,6 +42,8 @@ When the `skill-style-guide` skill is also in play (because the user named it or
 
 If both skills apply but the user has not specified which, ask once. Default to composed-with-skill-style-guide for any page the user is likely to share through their normal channels; default to standalone for one-off deliverables to external stakeholders who won't see other pages.
 
+**Palette source of truth.** Both palettes — `personal-style` (used when composing) and `standalone-jpmc` (used standalone) — live in `palette.json` at this skill's root. Read that file for current hex values rather than caching from SKILL.md; a colour change happens in `palette.json` once and both skills pick it up.
+
 ## Workflow
 
 Follow these phases in order. Each phase has a clear exit condition; don't move on until it's met.
@@ -170,20 +172,20 @@ Aesthetic target: **JPMC-ready professional**. The page should look like it belo
 
 ### Palette
 
-```
---ink:         #0B1F33    /* primary text — deep navy, not pure black */
---ink-muted:   #4A5A6B    /* secondary text */
---paper:       #FAFBFC    /* page background */
---surface:     #FFFFFF    /* card / callout background */
---rule:        #E1E6EB    /* borders, dividers */
---accent:      #1B4F8C    /* links, primary brand — corporate blue */
---accent-soft: #E8F0FA    /* tinted backgrounds for callouts */
---warn:        #8B4513    /* regulatory callout accent — saddle brown, not red */
---warn-soft:   #FDF4E8
---code-bg:     #F4F6F8
-```
+Read the current hex values from `palette.json` → `palettes.standalone-jpmc.light` (this is the canonical source; the variables below are the contract). Variables to emit in the page's `:root`:
 
-Do not introduce additional colors. If you need to distinguish more than two callout types, vary the left border thickness or icon shape rather than introducing new hues.
+- `--ink` — primary text (deep navy, not pure black)
+- `--ink-muted` — secondary text
+- `--paper` — page background
+- `--surface` — card / callout background
+- `--rule` — borders, dividers
+- `--accent` — links, primary brand
+- `--accent-soft` — tinted backgrounds for callouts
+- `--warn` — regulatory callout accent (saddle brown, not red)
+- `--warn-soft` — tinted background for warn callouts
+- `--code-bg` — code block background
+
+Do not introduce additional colors. If you need to distinguish more than two callout types, vary the left border thickness or icon shape rather than introducing new hues. When composing with skill-style-guide, switch to the `personal-style` palette in `palette.json` instead — different variable names, dark-mode aware.
 
 ### Typography
 
@@ -264,7 +266,7 @@ Wrap either form in a `<figure>` with a `<figcaption>` underneath naming the dia
 
 #### Mermaid setup
 
-Load from CDN and initialise with a theme matched to the page palette. The colour values below are for the standalone palette in this file; when composing with skill-style-guide, replace them with that skill's CSS variable values so Mermaid tracks the active theme.
+Load from CDN and initialise with a theme matched to the page palette. Use the values in `palette.json` → `palettes.standalone-jpmc.mermaid_theme_variables` for standalone pages; when composing with skill-style-guide, derive the same keys from the `personal-style` palette so Mermaid tracks the active theme.
 
 ```html
 <script type="module">
@@ -273,6 +275,7 @@ Load from CDN and initialise with a theme matched to the page palette. The colou
     startOnLoad: true,
     theme: 'base',
     themeVariables: {
+      /* values from palette.json → palettes.standalone-jpmc.mermaid_theme_variables */
       primaryColor: '#E8F0FA',
       primaryTextColor: '#0B1F33',
       primaryBorderColor: '#1B4F8C',

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "description": "Single source of truth for palettes used by skill-build-educational-site and skill-style-guide. Both skills read this file rather than hard-coding hex values in their respective SKILL.md files, so a palette change happens in one place and stays consistent across both skills.",
+  "consumers": [
+    "skill-build-educational-site",
+    "skill-style-guide"
+  ],
+  "palettes": {
+    "personal-style": {
+      "summary": "James Buckett's personal style. Light theme with dark-mode toggle, exactly one restrained accent. Owned by skill-style-guide. Used by skill-build-educational-site when composing with skill-style-guide (the default for any page shared through normal channels).",
+      "light": {
+        "--bg": "#FAFAFA",
+        "--surface": "#FFFFFF",
+        "--text": "#0A0A0A",
+        "--text-muted": "#6B7280",
+        "--border": "#E5E7EB",
+        "--border-strong": "#D1D5DB",
+        "--accent": "#2563EB",
+        "--accent-hover": "color-mix(in srgb, var(--accent) 88%, black)",
+        "--accent-soft": "color-mix(in srgb, var(--accent) 12%, var(--bg))"
+      },
+      "dark": {
+        "--bg": "#0B0B0C",
+        "--surface": "#161618",
+        "--text": "#F5F5F5",
+        "--text-muted": "#9CA3AF",
+        "--border": "#27272A",
+        "--border-strong": "#3F3F46",
+        "--accent-soft": "color-mix(in srgb, var(--accent) 18%, var(--bg))"
+      },
+      "accent_alternatives": {
+        "blue": "#2563EB",
+        "emerald": "#059669",
+        "warm-orange": "#EA580C"
+      },
+      "spacing": {
+        "--space-1": "4px",
+        "--space-2": "8px",
+        "--space-3": "12px",
+        "--space-4": "16px",
+        "--space-5": "24px",
+        "--space-6": "32px",
+        "--space-7": "48px",
+        "--space-8": "64px",
+        "--space-9": "96px"
+      }
+    },
+    "standalone-jpmc": {
+      "summary": "Conservative enterprise palette for one-off external deliverables. Used by skill-build-educational-site when NOT composing with skill-style-guide (e.g. a page going to a regulator or stakeholder outside the user's normal context). Light-only; no dark-mode toggle ships with standalone pages.",
+      "light": {
+        "--ink": "#0B1F33",
+        "--ink-muted": "#4A5A6B",
+        "--paper": "#FAFBFC",
+        "--surface": "#FFFFFF",
+        "--rule": "#E1E6EB",
+        "--accent": "#1B4F8C",
+        "--accent-soft": "#E8F0FA",
+        "--warn": "#8B4513",
+        "--warn-soft": "#FDF4E8",
+        "--code-bg": "#F4F6F8"
+      },
+      "dark": null,
+      "mermaid_theme_variables": {
+        "primaryColor": "#E8F0FA",
+        "primaryTextColor": "#0B1F33",
+        "primaryBorderColor": "#1B4F8C",
+        "lineColor": "#4A5A6B",
+        "fontFamily": "system-ui, sans-serif"
+      }
+    }
+  },
+  "selection_rule": "When composing skill-build-educational-site with skill-style-guide (the usual case), read the 'personal-style' palette. When skill-build-educational-site runs standalone, read 'standalone-jpmc'. The composition rule lives in each skill's SKILL.md; this file only holds the values."
+}

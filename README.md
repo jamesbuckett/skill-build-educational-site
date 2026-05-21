@@ -84,6 +84,57 @@ node ~/projects/skill-build-educational-site/screenshot.mjs your-page.html docs/
 
 Produces `docs/your-page.desktop.png` (1440×900 @ 2x) and `docs/your-page.mobile.png` (390×844 @ 2x).
 
+### (Optional) Wire up the PostToolUse linter
+
+`hooks/lint-html.mjs` runs after Claude writes or edits an HTML file. It quietly skips files that aren't this skill's output (gated on audience-switcher / TL;DR / glossary / further-reading signals), and prints actionable feedback to Claude when a real explainer page is missing something — external CSS link, stray emoji, audience switcher with no practitioner-only content, missing glossary, etc.
+
+Install dependencies once:
+
+```bash
+cd ~/projects/skill-build-educational-site
+npm install
+```
+
+Then add a `PostToolUse` block to `~/.claude/settings.json` (merge with existing `hooks:`):
+
+```json
+"PostToolUse": [
+  {
+    "matcher": "Write|Edit|MultiEdit",
+    "hooks": [
+      {
+        "type": "command",
+        "command": "node ~/projects/skill-build-educational-site/hooks/lint-html.mjs",
+        "timeout": 15
+      }
+    ]
+  }
+]
+```
+
+Restart Claude Code; the hook fires on every `Write`/`Edit`. To test it manually:
+
+```bash
+echo '{"tool_name":"Write","tool_input":{"file_path":"/path/to/your-page.html"}}' \
+  | node ~/projects/skill-build-educational-site/hooks/lint-html.mjs
+```
+
+Exit code 0 = passed or not applicable; exit code 2 = issues printed on stderr (Claude sees them).
+
+### (Optional) Run the evals
+
+`evals/run.mjs` exercises the 37 assertions in `evals/evals.json` against produced HTML.
+
+```bash
+cd ~/projects/skill-build-educational-site
+npm install                                    # one-time, for cheerio
+node evals/run.mjs --generate                  # runs `claude --print` for each case, then checks (slow)
+node evals/run.mjs                             # check-only against existing evals/outputs/ (fast, default)
+node evals/run.mjs --case fapi-2.0-explainer   # one case
+```
+
+Outputs land in `evals/outputs/<case-name>/`. Generation calls real Claude in non-interactive mode (`claude --print --dangerously-skip-permissions`); each case is ~30–90s and counts against your usage. Check-only is free and useful for verifying assertion predicates after a SKILL.md edit.
+
 ### Troubleshooting
 
 | Symptom | Fix |
@@ -131,10 +182,16 @@ For the full page template, design system, and failure modes the skill guards ag
 
 ```
 skill-build-educational-site/
-├── SKILL.md         — the skill itself (frontmatter + workflow + page template)
+├── SKILL.md             — the skill itself (frontmatter + workflow + page template)
+├── palette.json         — single source of truth for both palettes; shared with skill-style-guide
+├── hooks/
+│   └── lint-html.mjs    — PostToolUse linter (cheerio-based, gated by skill signatures)
 ├── evals/
-│   └── evals.json   — 3 test cases, 37 assertions
-├── screenshot.mjs   — Playwright visual-validation script
+│   ├── evals.json       — 3 test cases, 37 assertions
+│   ├── predicates.mjs   — assertion-id → predicate function map
+│   └── run.mjs          — eval runner CLI (--generate / --case / check-only default)
+├── screenshot.mjs       — Playwright visual-validation script
+├── package.json         — cheerio dependency
 ├── LICENSE
 └── README.md
 ```

@@ -1,0 +1,17 @@
+{
+  "name": "skill-build-educational-site",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lint:html": "node hooks/lint-html.mjs",
+    "eval": "node evals/run.mjs",
+    "eval:check": "node evals/run.mjs --check-only",
+    "screenshot": "node screenshot.mjs"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
