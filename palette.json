@@ -18,7 +18,14 @@
         "--border-strong": "#D1D5DB",
         "--accent": "#2563EB",
         "--accent-hover": "color-mix(in srgb, var(--accent) 88%, black)",
-        "--accent-soft": "color-mix(in srgb, var(--accent) 12%, var(--bg))"
+        "--accent-soft": "color-mix(in srgb, var(--accent) 12%, var(--bg))",
+        "--cat-1": "#DC2626",
+        "--cat-2": "#EA580C",
+        "--cat-3": "#CA8A04",
+        "--cat-4": "#16A34A",
+        "--cat-5": "#2563EB",
+        "--cat-6": "#4F46E5",
+        "--cat-7": "#7C3AED"
       },
       "dark": {
         "--bg": "#0B0B0C",
@@ -27,12 +34,24 @@
         "--text-muted": "#9CA3AF",
         "--border": "#27272A",
         "--border-strong": "#3F3F46",
-        "--accent-soft": "color-mix(in srgb, var(--accent) 18%, var(--bg))"
+        "--accent-soft": "color-mix(in srgb, var(--accent) 18%, var(--bg))",
+        "--cat-1": "#F87171",
+        "--cat-2": "#FB923C",
+        "--cat-3": "#FACC15",
+        "--cat-4": "#4ADE80",
+        "--cat-5": "#60A5FA",
+        "--cat-6": "#818CF8",
+        "--cat-7": "#A78BFA"
       },
       "accent_alternatives": {
         "blue": "#2563EB",
+        "indigo": "#4F46E5",
         "emerald": "#059669",
         "warm-orange": "#EA580C"
+      },
+      "categorical": {
+        "summary": "Rainbow tokens for data-viz / categorical use (charts, multi-series diagrams, taxonomy badges). Light values are Tailwind 600 series; dark values are Tailwind 400 series, lifted so they read on near-black. Does NOT override the one-accent rule — these are for visualization data, not brand surfaces. --cat-5 deliberately equals --accent so the chart palette harmonizes with the brand colour rather than competing with it.",
+        "scope": "Use only inside <svg>/<canvas> charts, diagram fills, or category badges. Do not assign --cat-* to CTAs, headings, links, or chrome — that drifts into the rainbow-toolbar failure mode the skill is built to prevent."
       },
       "spacing": {
         "--space-1": "4px",
